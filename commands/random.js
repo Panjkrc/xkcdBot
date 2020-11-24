@@ -1,4 +1,4 @@
-const { getRandomComic } = require("../helpers/tools")
+const { getRandomComic } = require("../helpers/comic")
 
 module.exports = {
 	name: 'random',

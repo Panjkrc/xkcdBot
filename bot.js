@@ -1,6 +1,7 @@
 const Ruqqus = require('ruqqus-js')
 const fs = require('fs')
-const { hasCommand, getComic, getLatestComic } = require('./helpers/tools')
+const { hasCommand } = require('./helpers/tools')
+const { getComic, getLatestComic } = require('./helpers/comic')
 require('dotenv').config();
 const chalk = require('chalk');
 const log = console.log;
@@ -24,9 +25,6 @@ for (const file of commandFiles) {
 	commands.push({ command });
 	log(`Registered command: ${command.name}`)
 }
-
-console.log(commands)
-
 
 client.on('comment', (comment) => {
 	const commentText = comment.content.text
@@ -66,3 +64,28 @@ process.on('unhandledRejection', (error) => {
 	}
 	return
 })
+
+/* Check for new xkcd every day */
+setInterval(() => {
+	getLatestComic().then(res => {
+		var db = JSON.parse(fs.readFileSync(process.env.JSONDB).toString());
+		if (db.latest.num < res.num) {
+			db.latest.num = res.num
+		
+			client.guilds.fetch('xkcd').then(guild => {
+				guild.post(`${res.title} #${res.num}`, { body: `${res.alt}<br>  <hr>  <br>Date: ${res.month}/${res.day}/${res.year}<br>https://xkcd.com/${res.num}`, url: res.img })
+				log('Posted new XKCD')
+			});
+
+			fs.writeFile(process.env.JSONDB, JSON.stringify(db), (err) => {
+				if(err) return log(err)
+			});
+
+		}
+
+	})
+
+},/* 86400000*/ 10000)
+
+
+
