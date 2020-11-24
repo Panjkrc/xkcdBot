@@ -1,15 +1,18 @@
 {
-  "name": "xkcdBot",
+  "name": "xkcdbot",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Bot for reposting xkcd comics in +xkcd",
+  "main": "bot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node bot.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "panjkrc",
+  "license": "Mozilla Public License Version 2.0",
   "dependencies": {
+    "chalk": "^4.1.0",
+    "dotenv": "^8.2.0",
+    "node-fetch": "^2.6.1",
     "ruqqus-js": "^3.3.0"
   }
 }
