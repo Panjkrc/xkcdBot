@@ -1,10 +1,17 @@
 const Ruqqus = require('ruqqus-js')
 const fs = require('fs')
+const mongoose = require('mongoose')
 const { hasCommand } = require('./helpers/tools')
 const { getComic, getLatestComic } = require('./helpers/comic')
 require('dotenv').config();
 const chalk = require('chalk');
+const { timeStamp } = require('console')
 const log = console.log;
+var db = JSON.parse(fs.readFileSync(process.env.JSONDB).toString());
+
+mongoose.connect(process.env.DBURL, { useNewUrlParser: true, useUnifiedTopology: true })
+	.then(() => console.log('Connected to xkcd database'))
+	.catch((err) => console.log(err));
 
 const prefix = process.env.PREFIX
 
@@ -38,8 +45,10 @@ client.on('comment', (comment) => {
 
 		}
 		else if (!isNaN(Number(content))) {
-			getComic(content).then((res) => {
+			getComic(content, db).then((res) => {
 				comment.reply(`You requested XKCD comic number ${content}, here it is:  <br>  ![](${res.img})`);
+			}).catch(num => {
+				log(`${num} out of range`)
 			})
 
 		}
@@ -47,12 +56,13 @@ client.on('comment', (comment) => {
 			const args = content.trim().split(/ +/);
 			const command = args.shift().toLowerCase();
 
-			hasCommand(commands, command, args)
+			hasCommand(commands, command)
 				.then(c => {
-					c.command.execute(client, comment)
+					c.command.execute(client, comment, args, db)
+					log(`run command: ${command}`)
 				})
 				.catch(c => {
-					log(`Invalid command ${c}`)
+					log(`Invalid command ${command}`)
 				})
 		}
 	}
@@ -68,17 +78,16 @@ process.on('unhandledRejection', (error) => {
 /* Check for new xkcd every day */
 setInterval(() => {
 	getLatestComic().then(res => {
-		var db = JSON.parse(fs.readFileSync(process.env.JSONDB).toString());
 		if (db.latest.num < res.num) {
 			db.latest.num = res.num
-		
+
 			client.guilds.fetch('xkcd').then(guild => {
 				guild.post(`${res.title} #${res.num}`, { body: `${res.alt}<br>  <hr>  <br>Date: ${res.month}/${res.day}/${res.year}<br>https://xkcd.com/${res.num}`, url: res.img })
 				log('Posted new XKCD')
 			});
 
 			fs.writeFile(process.env.JSONDB, JSON.stringify(db), (err) => {
-				if(err) return log(err)
+				if (err) return log(err)
 			});
 
 		}

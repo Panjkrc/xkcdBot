@@ -6,8 +6,12 @@ module.exports = {
 	getRandomComic
 }
 
-function getComic(num) {
+function getComic(num, db) {
 	return new Promise(async (resolve, reject) => {
+		if(num < 1 || num > db.latest.num){
+			console.log(`${num} REJECTED`)
+			reject(num)
+		} 
 		const response = await fetch(`https://xkcd.com/${num}/info.0.json`)
 		const json = await response.json();
 		resolve(json)
