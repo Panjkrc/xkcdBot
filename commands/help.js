@@ -14,6 +14,7 @@ module.exports = {
 				message.concat(`<br>* ${c.command.name}`)
 			})
 			message.concat(' <br> <hr> Run `!xkcd help command_name` to get help on specific command')
+			comment.reply(message)
 
 
 		} else {
@@ -27,6 +28,7 @@ module.exports = {
 					message.concat(`\`${a}\` `)
 				})
 			}
+			comment.reply(message)
 
 		}
 	}
