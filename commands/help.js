@@ -1,4 +1,4 @@
-const { getCommands } = require('../helpers/tools');
+const { getCommands, hasCommand } = require('../helpers/tools');
 const Comic = require('../models/comic');
 
 module.exports = {
@@ -7,28 +7,34 @@ module.exports = {
 	usage: process.env.PREFIX + ' help [Command]',
 	aliases: ['h'],
 	execute(client, comment, args, db) {
+
 		if (args.length == 0) {
 			const commands = getCommands()
-			var message = '##### List of all comands: <hr>'
+			var message = '<h6>List of all comands:</h6> <hr>'
 			commands.forEach(c => {
-				message.concat(`<br>* ${c.command.name}`)
+				message = message.concat(`• ${c.command.name}<br>`)
 			})
-			message.concat(' <br> <hr> Run `!xkcd help command_name` to get help on specific command')
+			message = message.concat(`<br><hr>Run <code>!xkcd help command_name</code> to get help on specific command`)
 			comment.reply(message)
 
 
 		} else {
 			const command = args[0]
-			const c = hasCommand(getCommands(), command)
+			const commands = getCommands()
 
-			var message = `Command ${command} details: <hr> * Description: ${c.command.description} <br> * Usage: \`${c.command.usage}\` <br>`
-			if( c.command.aliases !== 'undefined' && c.command.aliases.length !== 0){
-				message.concat(`Aliases: `)
-				c.command.aliases.forEach(a => {
-					message.concat(`\`${a}\` `)
-				})
-			}
-			comment.reply(message)
+			hasCommand(commands, command).then(c => {
+				var message = `Command <code>${command}</code> details: <hr>• Description: ${c.command.description} <br>• Usage: <code>${c.command.usage}</code> <br>`
+				if (c.command.aliases !== 'undefined' && c.command.aliases.length !== 0) {
+					message = message.concat(`• Aliases: `)
+					c.command.aliases.forEach(a => {
+						message = message.concat(`<code>${a}</code>`)
+					})
+				}
+				comment.reply(message)
+			})
+
+
+
 
 		}
 	}

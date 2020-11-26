@@ -58,6 +58,7 @@ client.on('comment', (comment) => {
 					log(`run command: ${command}`)
 				})
 				.catch(c => {
+					log(c)
 					log(`Invalid command ${command}`)
 				})
 		}
