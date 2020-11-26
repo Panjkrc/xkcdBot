@@ -9,7 +9,11 @@ const { timeStamp } = require('console')
 const log = console.log;
 var db = JSON.parse(fs.readFileSync(process.env.JSONDB).toString());
 
-mongoose.connect(process.env.DBURL, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.DBURL, {
+	useCreateIndex: true,
+	useNewUrlParser: true,
+	useUnifiedTopology: true
+})
 	.then(() => console.log('Connected to xkcd database'))
 	.catch((err) => console.log(err));
 
@@ -75,22 +79,14 @@ process.on('unhandledRejection', (error) => {
 	return
 })
 
-var i = 0
-if (!db.kill) {
-	log('Started scraping!')
-	setInterval(() => {
-		log(i)
-		i++
-		hasCommand(commands, 'scrap')
-			.then(c => {
-				c.command.execute(client, '', [i] , db)
-				log(`run command: 'scrap'`)
-			})
-			.catch(c => {
-				log(`Invalid command 'scrap'`)
-			})
 
-	}, 2000)
+if (db.scrap) {
+	var i = 0
+	setInterval(() => {
+		i++
+		scrap(i)
+
+	}, 500)
 }
 
 
@@ -99,21 +95,31 @@ setInterval(() => {
 	getLatestComic().then(res => {
 		if (db.latest.num < res.num) {
 			db.latest.num = res.num
-
-			client.guilds.fetch('xkcd').then(guild => {
-				guild.post(`${res.title} #${res.num}`, { body: `${res.alt}<br>  <hr>  <br>Date: ${res.month}/${res.day}/${res.year}<br>https://xkcd.com/${res.num}`, url: res.img })
-				log('Posted new XKCD')
-			});
-
 			fs.writeFile(process.env.JSONDB, JSON.stringify(db), (err) => {
 				if (err) return log(err)
 			});
 
+
+			client.guilds.fetch('xkcd').then(guild => {
+				scrap(res.num)
+				guild.post(`${res.title} #${res.num}`, { body: `${res.alt}<br>  <hr>  <br>Date: ${res.month}/${res.day}/${res.year}<br>https://xkcd.com/${res.num}`, url: res.img })
+				log('Posted new XKCD')
+			});
+
+			
 		}
 
 	})
 
 }, 86400000)
 
-
+function scrap(num) {
+	hasCommand(commands, 'scrap')
+		.then(c => {
+			c.command.execute(client, '', [num], db)
+		})
+		.catch(c => {
+			log(`Could not scrap comic ${num}`)
+		})
+}
 

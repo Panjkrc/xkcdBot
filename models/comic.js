@@ -51,7 +51,7 @@ const ComicSchema = new mongoose.Schema({
 
 });
 
-schema.index({ '$**': 'text' });
+ComicSchema.index({ '$**': 'text' });
 
 const Comic = mongoose.model('comic', ComicSchema);
 
