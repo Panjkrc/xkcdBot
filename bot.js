@@ -75,6 +75,25 @@ process.on('unhandledRejection', (error) => {
 	return
 })
 
+var i = 0
+if (!db.kill) {
+	log('Started scraping!')
+	setInterval(() => {
+		log(i)
+		i++
+		hasCommand(commands, 'scrap')
+			.then(c => {
+				c.command.execute(client, '', [i] , db)
+				log(`run command: 'scrap'`)
+			})
+			.catch(c => {
+				log(`Invalid command 'scrap'`)
+			})
+
+	}, 2000)
+}
+
+
 /* Check for new xkcd every day */
 setInterval(() => {
 	getLatestComic().then(res => {
