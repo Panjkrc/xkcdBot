@@ -1,5 +1,8 @@
+const fs = require('fs')
+
 module.exports = {
 	hasCommand,
+	getCommands,
 	sleep
 }
 
@@ -21,6 +24,18 @@ function hasCommand(commands, command) {
 		})
 		reject(command)
 	})
+}
+
+function getCommands() {
+	var commands = []
+	const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+	for (const file of commandFiles) {
+		const command = require(`../commands/${file}`);
+		commands.push({ command });
+	}
+
+	return commands
 }
 
 function sleep(milliseconds) {

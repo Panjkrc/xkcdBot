@@ -2,6 +2,8 @@ const Comic = require('../models/comic');
 
 module.exports = {
 	name: 'explain',
+	description: 'Explains requested xkcd comic (all explanations are taken from [explainxkcd.com](https://explainxkcd.com))',
+	usage: process.env.PREFIX + ' explain [Number]',
 	aliases: ['e', 'explanation'],
 	execute(client, comment, args, db) {
 		const num = args[0]

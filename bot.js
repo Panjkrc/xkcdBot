@@ -1,11 +1,10 @@
 const Ruqqus = require('ruqqus-js')
 const fs = require('fs')
 const mongoose = require('mongoose')
-const { hasCommand } = require('./helpers/tools')
+const { hasCommand, getCommands } = require('./helpers/tools')
 const { getComic, getLatestComic } = require('./helpers/comic')
 require('dotenv').config();
 const chalk = require('chalk');
-const { timeStamp } = require('console')
 const log = console.log;
 var db = JSON.parse(fs.readFileSync(process.env.JSONDB).toString());
 
@@ -27,15 +26,8 @@ const client = new Ruqqus.Client({
 
 })
 
-var commands = []
-
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-
-for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-	commands.push({ command });
-	log(`Registered command: ${command.name}`)
-}
+var commands = getCommands()
+commands.forEach(c => log(`Registered command: ${chalk.green(c.command.name)}`))
 
 client.on('comment', (comment) => {
 	const commentText = comment.content.text
@@ -80,16 +72,6 @@ process.on('unhandledRejection', (error) => {
 })
 
 
-if (db.scrap) {
-	var i = 0
-	setInterval(() => {
-		i++
-		scrap(i)
-
-	}, 500)
-}
-
-
 /* Check for new xkcd every day */
 setInterval(() => {
 	getLatestComic().then(res => {
@@ -102,16 +84,27 @@ setInterval(() => {
 
 			client.guilds.fetch('xkcd').then(guild => {
 				scrap(res.num)
+				log(`Scraped and added comic ${res.num} to the database`)
 				guild.post(`${res.title} #${res.num}`, { body: `${res.alt}<br>  <hr>  <br>Date: ${res.month}/${res.day}/${res.year}<br>https://xkcd.com/${res.num}`, url: res.img })
 				log('Posted new XKCD')
 			});
 
-			
+
 		}
 
 	})
 
 }, 86400000)
+
+
+if (db.scrap) {
+	var i = 0
+	setInterval(() => {
+		i++
+		scrap(i)
+
+	}, 500)
+}
 
 function scrap(num) {
 	hasCommand(commands, 'scrap')
