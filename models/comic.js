@@ -49,9 +49,10 @@ const ComicSchema = new mongoose.Schema({
 		required: false
 	}
 
-
-
 });
+
+schema.index({ '$**': 'text' });
+
 const Comic = mongoose.model('comic', ComicSchema);
 
 module.exports = Comic;
