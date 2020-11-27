@@ -13,7 +13,7 @@ module.exports = {
 					console.log(err)
 					return
 				}
-				comment.reply(`${comic.explanation} <hr> <sub>Explanation taken from: [explainxkcd.com](https://www.explainxkcd.com/wiki/index.php/${num})</sub>`)
+				comment.reply(`${comic.explanation} <hr> <sup>Explanation taken from: https://www.explainxkcd.com/wiki/index.php/${num} </sup>`)
 			})
 
 		}
