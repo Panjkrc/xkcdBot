@@ -1,7 +1,7 @@
 const Ruqqus = require('ruqqus-js')
 const fs = require('fs')
 const mongoose = require('mongoose')
-const { hasCommand, getCommands } = require('./helpers/tools')
+const { hasCommand, getCommands, sleep } = require('./helpers/tools')
 const { getComic, getLatestComic } = require('./helpers/comic')
 require('dotenv').config();
 const chalk = require('chalk');
@@ -81,8 +81,7 @@ setInterval(() => {
 			fs.writeFile(process.env.JSONDB, JSON.stringify(db), (err) => {
 				if (err) return log(err)
 			});
-
-
+			sleep(1000)
 			client.guilds.fetch('xkcd').then(guild => {
 				scrap(res.num)
 				log(`Scraped and added comic ${res.num} to the database`)
