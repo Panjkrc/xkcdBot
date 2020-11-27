@@ -17,7 +17,6 @@ module.exports = {
 			message = message.concat(`<br><hr>Run <code>!xkcd help command_name</code> to get help on specific command`)
 			comment.reply(message)
 
-
 		} else {
 			const command = args[0]
 			const commands = getCommands()
@@ -27,15 +26,12 @@ module.exports = {
 				if (c.command.aliases !== 'undefined' && c.command.aliases.length !== 0) {
 					message = message.concat(`• Aliases: `)
 					c.command.aliases.forEach(a => {
-						message = message.concat(`<code>${a}</code>`)
+						message = message.concat(`<code>${a}</code>, `)
 					})
+					message = message.slice(0, -2)
 				}
 				comment.reply(message)
 			})
-
-
-
-
 		}
 	}
 }
