@@ -78,8 +78,7 @@ process.on('unhandledRejection', (error) => {
 })
 
 
-/* Check for new xkcd every day */
-
+/* Check for new xkcd every 6 hours*/
 setInterval(() => {
 	check()
 
