@@ -12,6 +12,7 @@ module.exports = {
 			const commands = getCommands()
 			var message = '<h6>List of all comands:</h6> <hr>'
 			commands.forEach(c => {
+				if (c.command.owner) return
 				message = message.concat(`• ${c.command.name}<br>`)
 			})
 			message = message.concat(`<br><hr>Run <code>!xkcd help command_name</code> to get help on specific command`)
@@ -22,6 +23,7 @@ module.exports = {
 			const commands = getCommands()
 
 			hasCommand(commands, command).then(c => {
+				if (c.command.owner) return
 				var message = `Command <code>${command}</code> details: <hr>• Description: ${c.command.description} <br>• Usage: <code>${c.command.usage}</code> <br>`
 				if (c.command.aliases !== 'undefined' && c.command.aliases.length !== 0) {
 					message = message.concat(`• Aliases: `)

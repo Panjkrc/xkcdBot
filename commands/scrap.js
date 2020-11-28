@@ -5,6 +5,7 @@ const { sleep } = require('../helpers/tools')
 
 module.exports = {
 	name: 'scrap',
+	owner: true,
 	execute(client, comment, args, db) {
 		if(comment !== 'undefined' || comment !== ''){
 			if(!(db.owner.includes(comment.author.username))) return
