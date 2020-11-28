@@ -29,6 +29,11 @@ const client = new Ruqqus.Client({
 var commands = getCommands()
 commands.forEach(c => log(`Registered command: ${chalk.green(c.command.name)}`))
 
+client.on("login", () => {
+	check()
+	log('Logged in');
+});
+
 client.on('comment', (comment) => {
 	const commentText = comment.content.text
 	if (commentText.startsWith(prefix)) {
@@ -74,27 +79,11 @@ process.on('unhandledRejection', (error) => {
 
 
 /* Check for new xkcd every day */
+
 setInterval(() => {
-	getLatestComic().then(res => {
-		if (db.latest.num < res.num) {
-			db.latest.num = res.num
-			fs.writeFile(process.env.JSONDB, JSON.stringify(db), (err) => {
-				if (err) return log(err)
-			});
-			sleep(1000)
-			client.guilds.fetch('xkcd').then(guild => {
-				scrap(res.num)
-				log(`Scraped and added comic ${res.num} to the database`)
-				guild.post(`${res.title} #${res.num}`, { body: `${res.alt}<br>  <hr>  <br>Date: ${res.month}/${res.day}/${res.year}<br>https://xkcd.com/${res.num}`, url: res.img })
-				log('Posted new XKCD')
-			});
+	check()
 
-
-		}
-
-	})
-
-}, 86400000)
+}, 21600000)
 
 
 if (db.scrap) {
@@ -104,6 +93,37 @@ if (db.scrap) {
 		scrap(i)
 
 	}, 500)
+}
+
+
+function check() {
+	getLatestComic().then(res => {
+		if (db.latest.num < res.num) {
+			db.latest.num = res.num
+			try {
+				scrap(res.num)
+				sleep(5000)
+				log(`Scraped and added comic ${res.num} to the database`)
+			} catch (error) {
+				log(`Failed to scrap comic ${res.num}`)
+				log(error)
+			}
+
+			fs.writeFile(process.env.JSONDB, JSON.stringify(db), (err) => {
+				if (err) return log(err)
+				log(`Saved latest comic to the database (${res.num})`)
+			});
+
+			client.guilds.fetch('xkcd').then(guild => {
+
+				guild.post(`${res.title} #${res.num}`, { body: `${res.alt}<br>  <hr>  <br>Date: ${res.month}/${res.day}/${res.year}<br>https://xkcd.com/${res.num}`, url: res.img })
+				log('Posted new XKCD')
+			});
+
+
+		}
+
+	})
 }
 
 function scrap(num) {
